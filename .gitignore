@@ -6,3 +6,6 @@ config.env
 
 #build folder
 dist
+
+#upload folder
+uploads

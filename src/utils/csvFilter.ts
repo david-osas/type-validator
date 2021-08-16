@@ -7,14 +7,13 @@ export function csvFilter(
   file: Express.Multer.File,
   cb: FileFilterCallback
 ): void {
-  console.log(file.mimetype);
   if (file.mimetype === "text/csv") {
     cb(null, true);
   } else {
     cb(null, false);
 
     const error: AppError = new Error("only csv files are allowed");
-    error.status = 404;
+    error.status = 400;
     cb(error);
   }
 }
