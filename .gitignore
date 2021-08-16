@@ -3,3 +3,6 @@ node_modules
 
 #environmental variables
 config.env
+
+#build folder
+dist
