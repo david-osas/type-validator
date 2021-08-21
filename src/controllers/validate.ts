@@ -46,7 +46,6 @@ export const validateCsv: RequestHandler = (req, res, next) => {
         col.invalidRows.push({ index: j, type: dataType });
       }
     }
-
     validateData.push(col);
   }
 
