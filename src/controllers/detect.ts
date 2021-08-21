@@ -1,23 +1,9 @@
 import { AppError } from "./../types/error";
 import { RequestHandler } from "express";
 import { promises as fs } from "fs";
-
-type Data = string[][];
-
-interface ColTypeFreq {
-  type: string;
-  frequency: number;
-}
-
-interface ColType {
-  mainType: ColTypeFreq;
-  otherTypes: ColTypeFreq[];
-}
-
-interface ColData {
-  columnName: string;
-  columnTypes: ColType;
-}
+import { Data, ColData, ColType } from "../types/csv";
+import { readCsvFile } from "../utils/readCsv";
+import { getDataType } from "../utils/dataType";
 
 export const detectSchema: RequestHandler = async (req, res, next) => {
   const fileError: AppError = new Error("error reading uploaded file");
@@ -26,13 +12,8 @@ export const detectSchema: RequestHandler = async (req, res, next) => {
 
   if (req.file?.path) {
     try {
-      await fs.access(req.file?.path);
-      const file = await fs.readFile(req.file?.path, "utf8");
-      const fileRows = file.split("\r\n");
-      const data: Data = fileRows.map((item) =>
-        item.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
-      );
-      data.pop();
+      await fs.access(req.file.path);
+      const data: Data = await readCsvFile(req.file.path);
       if (data.length < 2) {
         fileError.message = "atleast 2 rows are required";
         throw fileError;
@@ -61,27 +42,6 @@ export const detectSchema: RequestHandler = async (req, res, next) => {
     data: colsData,
   });
 };
-
-function getDataType(value: unknown) {
-  let dataType = "unknown";
-
-  if (!value || typeof value !== "string" || value === "") return dataType;
-  const hasLetters = /[a-zA-Z]/g;
-
-  if (!hasLetters.test(value)) {
-    const floatVal = parseFloat(value);
-    dataType = "float";
-
-    if (Number.isInteger(floatVal)) dataType = "integer";
-  } else {
-    const stringVal = value.toLowerCase();
-
-    if (stringVal === "true" || stringVal === "false") dataType = "boolean";
-    else dataType = "string";
-  }
-
-  return dataType;
-}
 
 function getColNames(data: Data) {
   const colData: { columnNumber: number; columns: string[] } = {
