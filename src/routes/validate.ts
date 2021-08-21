@@ -1,9 +1,9 @@
 import { Router } from "express";
-import * as detectControllers from "../controllers/detect";
+import * as validateControllers from "../controllers/validate";
 import { parseCsv, csvUpload } from "../middlewares/handleCsv";
 
 const router = Router();
 
-router.post("/", csvUpload, parseCsv, detectControllers.detectTypes);
+router.post("/", csvUpload, parseCsv, validateControllers.validateCsv);
 
 export default router;

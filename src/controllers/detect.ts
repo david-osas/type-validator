@@ -1,39 +1,20 @@
-import { AppError } from "./../types/error";
 import { RequestHandler } from "express";
-import { promises as fs } from "fs";
-import { Data, ColData, ColType } from "../types/csv";
-import { readCsvFile } from "../utils/readCsv";
+import { ColData, ColType } from "../types/detect";
+import { Data } from "../types/csv";
 import { getDataType } from "../utils/dataType";
 
-export const detectSchema: RequestHandler = async (req, res, next) => {
-  const fileError: AppError = new Error("error reading uploaded file");
-  fileError.status = 404;
+export const detectTypes: RequestHandler = (req, res, next) => {
   const colsData: ColData[] = [];
+  const data: Data = res.locals.data;
 
-  if (req.file?.path) {
-    try {
-      await fs.access(req.file.path);
-      const data: Data = await readCsvFile(req.file.path);
-      if (data.length < 2) {
-        fileError.message = "atleast 2 rows are required";
-        throw fileError;
-      }
-
-      const colNames = getColNames(data);
-      for (let i = 0; i < colNames.columnNumber; i++) {
-        const colType = detectColValues(data, i);
-        const col: ColData = {
-          columnName: colNames.columns[i],
-          columnTypes: colType,
-        };
-        colsData.push(col);
-      }
-    } catch (err) {
-      console.log(err);
-      return next(fileError);
-    }
-  } else {
-    return next(fileError);
+  const colNames = getColNames(data);
+  for (let i = 0; i < colNames.columnNumber; i++) {
+    const colType = detectColValues(data, i);
+    const col: ColData = {
+      columnName: colNames.columns[i],
+      columnTypes: colType,
+    };
+    colsData.push(col);
   }
 
   return res.json({

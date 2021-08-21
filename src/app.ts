@@ -4,6 +4,7 @@ import helmet from "helmet";
 import { AppError } from "./types/error";
 import detectRoutes from "./routes/detect";
 import typesRoutes from "./routes/types";
+import validateRoutes from "./routes/validate";
 
 const app = express();
 
@@ -16,8 +17,11 @@ if (process.env.NODE_ENV === "development") {
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use("/api/v1/detect", detectRoutes);
-app.use("/api/v1/types", typesRoutes);
+const baseRoute = "/api/v1";
+
+app.use(`${baseRoute}/detect`, detectRoutes);
+app.use(`${baseRoute}/types`, typesRoutes);
+app.use(`${baseRoute}/validate`, validateRoutes);
 
 //handle Invalid routes change
 app.use("*", (req, res, next) => {
