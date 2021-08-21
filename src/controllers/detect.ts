@@ -2,14 +2,6 @@ import { AppError } from "./../types/error";
 import { RequestHandler } from "express";
 import { promises as fs } from "fs";
 
-// TYPES
-//
-// Integer
-// Float
-// Boolean
-// String
-// unknown
-
 type Data = string[][];
 
 interface ColTypeFreq {
@@ -30,6 +22,7 @@ interface ColData {
 export const detectSchema: RequestHandler = async (req, res, next) => {
   const fileError: AppError = new Error("error reading uploaded file");
   fileError.status = 404;
+  const colsData: ColData[] = [];
 
   if (req.file?.path) {
     try {
@@ -40,21 +33,20 @@ export const detectSchema: RequestHandler = async (req, res, next) => {
         item.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
       );
       data.pop();
-      if (data.length < 2) return res.json({ data: "not enough rows" });
+      if (data.length < 2) {
+        fileError.message = "atleast 2 rows are required";
+        throw fileError;
+      }
 
-      const colsData: ColData[] = [];
       const colNames = getColNames(data);
-
       for (let i = 0; i < colNames.columnNumber; i++) {
         const colType = detectColValues(data, i);
         const col: ColData = {
           columnName: colNames.columns[i],
           columnTypes: colType,
         };
-
         colsData.push(col);
       }
-      return res.json({ data: colsData });
     } catch (err) {
       console.log(err);
       return next(fileError);
@@ -63,7 +55,11 @@ export const detectSchema: RequestHandler = async (req, res, next) => {
     return next(fileError);
   }
 
-  return res.json({ data: "osas says hi" });
+  return res.json({
+    status: "success",
+    message: "successfully detected column types",
+    data: colsData,
+  });
 };
 
 function getDataType(value: unknown) {
