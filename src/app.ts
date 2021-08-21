@@ -15,7 +15,7 @@ if (process.env.NODE_ENV === "development") {
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use("/detect", detectRoutes);
+app.use("/api/v1/detect", detectRoutes);
 
 //handle Invalid routes change
 app.use("*", (req, res, next) => {
