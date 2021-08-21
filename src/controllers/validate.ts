@@ -4,8 +4,6 @@ import { getDataType } from "../utils/dataType";
 import { Data } from "../types/csv";
 import { ValidateData } from "../types/validate";
 
-//columns: [type]
-
 export const validateCsv: RequestHandler = (req, res, next) => {
   const reqErr: AppError = new Error("invalid payload passed");
   reqErr.status = 404;
@@ -54,7 +52,7 @@ export const validateCsv: RequestHandler = (req, res, next) => {
 
   return res.json({
     status: "success",
-    message: "vaidation process is complete",
+    message: "validation process is complete",
     data: validateData,
   });
 };
