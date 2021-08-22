@@ -11,3 +11,11 @@ export async function readCsvFile(path: string): Promise<Data> {
 
   return data;
 }
+
+export async function deleteFile(path: string): Promise<void> {
+  try {
+    await fs.unlink(path);
+  } catch (err) {
+    console.error(err);
+  }
+}

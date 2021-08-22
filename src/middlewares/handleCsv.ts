@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import multer from "multer";
 import { promises as fs } from "fs";
-import { readCsvFile } from "../utils/readCsv";
+import { readCsvFile, deleteFile } from "../utils/csvFile";
 import { csvFilter, csvMaxSize } from "../utils/csvFilter";
 import { AppError } from "../types/error";
 import { Data } from "../types/csv";
@@ -27,9 +27,10 @@ export const parseCsv: RequestHandler = async (req, res, next) => {
     }
 
     res.locals.data = data;
+    deleteFile(req.file.path);
     next();
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return next(fileError);
   }
 };
